@@ -1,0 +1,11 @@
+﻿{
+  "Group": "Payment methods",
+  "FriendlyName": "Credit Card",
+  "SystemName": "Payments.Square",
+  "Version": "1.21",
+  "SupportedVersions": [ "4.10" ],
+  "Author": "Appulu team",
+  "DisplayOrder": 1,
+  "FileName": "App.Plugin.Payments.Square.dll",
+  "Description": "This plugin allows paying with Square"
+}

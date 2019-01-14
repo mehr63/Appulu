@@ -1,0 +1,13 @@
+﻿using Appulu.Web.Framework.Models;
+
+namespace Appulu.Web.Models.Profile
+{
+    public partial class PostsModel : BaseAppModel
+    {
+        public int ForumTopicId { get; set; }
+        public string ForumTopicTitle { get; set; }
+        public string ForumTopicSlug { get; set; }
+        public string ForumPostText { get; set; }
+        public string Posted { get; set; }
+    }
+}

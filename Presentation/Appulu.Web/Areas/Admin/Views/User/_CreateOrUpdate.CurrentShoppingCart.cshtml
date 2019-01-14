@@ -1,0 +1,117 @@
+﻿@model UserModel
+
+@using Appulu.Services.Stores
+@inject IStoreService storeService
+@{
+    var stores = storeService.GetAllStores();
+}
+
+<div class="panel-group">
+    @await Component.InvokeAsync("AdminWidget", new { widgetZone = AdminWidgetZones.UserDetailsShoppingCartTop, additionalData = Model })
+
+    <div class="panel panel-default">
+        <div class="panel-body">
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="form-group">
+                        <div class="col-md-4">
+                            <app-label asp-for="UserShoppingCartSearchModel.ShoppingCartTypeId" />
+                        </div>
+                        <div class="col-md-8">
+                            <app-select asp-for="UserShoppingCartSearchModel.ShoppingCartTypeId" asp-items="@Model.UserShoppingCartSearchModel.AvailableShoppingCartTypes" />
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="panel panel-default">
+        <div class="panel-body">
+            <div id="currentshoppingcart-grid"></div>
+            <script>
+                $(document).ready(function () {
+                    $("#currentshoppingcart-grid").kendoGrid({
+                        dataSource: {
+                            type: "json",
+                            transport: {
+                                read: {
+                                    url: "@Html.Raw(Url.Action("GetCartList", "User"))",
+                                    type: "POST",
+                                    dataType: "json",
+                                    data: function () {
+                                        var data = {
+                                            UserId: '@(Model.Id)',
+                                            ShoppingCartTypeId: $('#@Html.IdFor(model => model.UserShoppingCartSearchModel.ShoppingCartTypeId)').val()
+                                        };
+                                        addAntiForgeryToken(data);
+                                        return data;
+                                    }
+                                }
+                            },
+                            schema: {
+                                data: "Data",
+                                total: "Total",
+                                errors: "Errors"
+                            },
+                            error: function(e) {
+                                display_kendoui_grid_error(e);
+                                // Cancel the changes
+                                this.cancelChanges();
+                            },
+                            pageSize: @(Model.UserShoppingCartSearchModel.PageSize),
+                            serverPaging: true,
+                            serverFiltering: true,
+                            serverSorting: true
+                        },
+                        pageable: {
+                            refresh: true,
+                            pageSizes: [@(Model.UserShoppingCartSearchModel.AvailablePageSizes)],
+                            @await Html.PartialAsync("_GridPagerMessages")
+                        },
+                        editable: {
+                            confirmation: "@T("Admin.Common.DeleteConfirmation")",
+                            mode: "inline"
+                        },
+                        scrollable: false,
+                        columns: [{
+                            field: "ProductName",
+                            title: "@T("Admin.CurrentCarts.Product")",
+                            width:500,
+                            template: '<a href="@Url.Content("~/Admin/Product/Edit/")#=ProductId#">#:ProductName#</a>' +
+                                '# if(AttributeInfo && AttributeInfo.length > 0) {# <div>#=AttributeInfo#</div> #} #'
+                        }, {
+                            field: "Quantity",
+                            title: "@T("Admin.CurrentCarts.Quantity")",
+                            width:200
+                        },{
+                            field: "UnitPrice",
+                            title: "@T("Admin.CurrentCarts.UnitPrice")",
+                            width:200
+                        },{
+                            field: "Total",
+                            title: "@T("Admin.CurrentCarts.Total")",
+                            width:200
+                        },{
+                            field: "Store",
+                            hidden: @(stores.Count > 1 ? "false" : "true"),
+                            title: "@T("Admin.CurrentCarts.Store")",
+                            width:200
+                        },{
+                            field: "UpdatedOn",
+                            title: "@T("Admin.CurrentCarts.UpdatedOn")",
+                            width: 200,
+                            type: "date",
+                            format: "{0:G}"
+                        }]
+                    });
+
+                    $('#@Html.IdFor(model => model.UserShoppingCartSearchModel.ShoppingCartTypeId)').change(function() {
+                        $("#currentshoppingcart-grid").data('kendoGrid').dataSource.read();
+                    });
+                });
+            </script>
+        </div>
+    </div>
+    @await Component.InvokeAsync("AdminWidget", new { widgetZone = AdminWidgetZones.UserDetailsShoppingCartBottom, additionalData = Model })
+</div>

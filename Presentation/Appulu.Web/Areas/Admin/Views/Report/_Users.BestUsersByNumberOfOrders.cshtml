@@ -1,0 +1,145 @@
+﻿@model UserReportsSearchModel
+
+<div class="panel-group">
+    <div class="panel panel-default">
+        <div class="panel-body">
+            <div class="form-group">
+                <div class="col-md-3">
+                    <app-label asp-for="BestUsersByNumberOfOrders.StartDate"/>
+                </div>
+                <div class="col-md-9">
+                    <app-editor asp-for="BestUsersByNumberOfOrders.StartDate"/>
+                </div>
+            </div>
+            <div class="form-group">
+                <div class="col-md-3">
+                    <app-label asp-for="BestUsersByNumberOfOrders.EndDate"/>
+                </div>
+                <div class="col-md-9">
+                    <app-editor asp-for="BestUsersByNumberOfOrders.EndDate"/>
+                </div>
+            </div>
+            <div class="form-group">
+                <div class="col-md-3">
+                    <app-label asp-for="BestUsersByNumberOfOrders.OrderStatusId"/>
+                </div>
+                <div class="col-md-9">
+                    <app-select asp-for="BestUsersByNumberOfOrders.OrderStatusId" asp-items="Model.BestUsersByNumberOfOrders.AvailableOrderStatuses"/>
+                </div>
+            </div>
+            <div class="form-group">
+                <div class="col-md-3">
+                    <app-label asp-for="BestUsersByNumberOfOrders.PaymentStatusId"/>
+                </div>
+                <div class="col-md-9">
+                    <app-select asp-for="BestUsersByNumberOfOrders.PaymentStatusId" asp-items="Model.BestUsersByNumberOfOrders.AvailablePaymentStatuses"/>
+                </div>
+            </div>
+            <div class="form-group">
+                <div class="col-md-3">
+                    <app-label asp-for="BestUsersByNumberOfOrders.ShippingStatusId"/>
+                </div>
+                <div class="col-md-9">
+                    <app-select asp-for="BestUsersByNumberOfOrders.ShippingStatusId" asp-items="Model.BestUsersByNumberOfOrders.AvailableShippingStatuses"/>
+                </div>
+            </div>
+            <div class="form-group">
+                <div class="col-md-9 col-md-offset-3">
+                    <button type="button" id="search-best-users-numberoforders-grid" class="btn btn-primary btn-search">
+                        <i class="fa fa-line-chart"></i>
+                        @T("Admin.Reports.Users.RunReport")
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="panel panel-default">
+        <div class="panel-body">
+            <div id="best-users-numberoforders-grid"></div>
+
+            <script>
+                $(document).ready(function() {
+                    $("#best-users-numberoforders-grid").kendoGrid({
+                        dataSource: {
+                            type: "json",
+                            transport: {
+                                read: {
+                                    url: "@Html.Raw(Url.Action("ReportBestUsersByNumberOfOrdersList", "Report"))",
+                                    type: "POST",
+                                    dataType: "json",
+                                    data: function() {
+                                        var data = {
+                                            OrderBy : 2,
+                                            StartDate: $('#@Html.IdFor(model => model.BestUsersByNumberOfOrders.StartDate)').val(),
+                                            EndDate: $('#@Html.IdFor(model => model.BestUsersByNumberOfOrders.EndDate)').val(),
+                                            OrderStatusId: $('#@Html.IdFor(model => model.BestUsersByNumberOfOrders.OrderStatusId)').val(),
+                                            PaymentStatusId: $('#@Html.IdFor(model => model.BestUsersByNumberOfOrders.PaymentStatusId)').val(),
+                                            ShippingStatusId: $('#@Html.IdFor(model => model.BestUsersByNumberOfOrders.ShippingStatusId)').val()
+                                        };
+                                        addAntiForgeryToken(data);
+                                        return data;
+                                    }
+                                }
+                            },
+                            schema: {
+                                data: "Data",
+                                total: "Total",
+                                errors: "Errors"
+                            },
+                            error: function(e) {
+                                display_kendoui_grid_error(e);
+                                // Cancel the changes
+                                this.cancelChanges();
+                            },
+                            pageSize: @(Model.BestUsersByNumberOfOrders.PageSize),
+                            serverPaging: true,
+                            serverFiltering: true,
+                            serverSorting: true
+                        },
+                        pageable: {
+                            refresh: true,
+                            pageSizes: [@(Model.BestUsersByNumberOfOrders.AvailablePageSizes)],
+                            @await Html.PartialAsync("_GridPagerMessages")
+                        },
+                        editable: {
+                            confirmation: "@T("Admin.Common.DeleteConfirmation")",
+                            mode: "inline"
+                        },
+                        scrollable: false,
+                        columns: [
+                            {
+                                field: "UserName",
+                                title: "@T("Admin.Reports.Users.BestBy.Fields.User")"
+                            }, {
+                                field: "OrderTotal",
+                                title: "@T("Admin.Reports.Users.BestBy.Fields.OrderTotal")"
+                            }, {
+                                field: "OrderCount",
+                                title: "@T("Admin.Reports.Users.BestBy.Fields.OrderCount")"
+                            }, {
+                                field: "Id",
+                                title: "@T("Admin.Common.View")",
+                                width: 100,
+                                headerAttributes: { style: "text-align:center" },
+                                attributes: { style: "text-align:center" },
+                                template: '<a class="btn btn-default" href="@Url.Content("~/Admin/User/Edit/")#=UserId#"><i class="fa fa-eye"></i>@T("Admin.Common.View")</a>'
+                            }
+                        ]
+                    });
+                });
+            </script>
+
+            <script>
+                $(document).ready(function() {
+                    $('#search-best-users-numberoforders-grid').click(function() {
+                        var grid = $('#best-users-numberoforders-grid').data('kendoGrid');
+                        grid.dataSource.page(1); //new search. Set page size to 1
+                        //grid.dataSource.read(); we already loaded the grid above using "page" function
+                        return false;
+                    });
+                });
+            </script>
+        </div>
+    </div>
+</div>

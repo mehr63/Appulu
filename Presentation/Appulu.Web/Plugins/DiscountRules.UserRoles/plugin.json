@@ -1,0 +1,11 @@
+﻿{
+  "Group": "Discount requirements",
+  "FriendlyName": "Must be assigned to user role",
+  "SystemName": "DiscountRequirement.MustBeAssignedToUserRole",
+  "Version": "1.25",
+  "SupportedVersions": [ "4.10" ],
+  "Author": "Appulu team",
+  "DisplayOrder": 1,
+  "FileName": "App.Plugin.DiscountRules.UserRoles.dll",
+  "Description": "This plugin allows you to configure discounts for certain user groups (roles)"
+}

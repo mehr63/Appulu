@@ -1,0 +1,39 @@
+@model NewsContentModel
+
+@inject IEventPublisher eventPublisher
+
+@{
+    //page title
+    ViewBag.Title = T("Admin.ContentManagement.News").Text;
+    //active menu item (system name)
+    Html.SetActiveMenuItemSystemName("News");
+}
+
+<app-antiforgery-token />
+
+<form asp-controller="News" asp-action="List" method="post">
+    <div class="content-header clearfix">
+        <h1 class="pull-left">
+            @T("Admin.ContentManagement.News")
+        </h1>
+    </div>
+
+    <div class="content">
+        <div class="form-horizontal">
+            <app-tabs id="news-tabs">
+                <app-tab asp-name="news-items" asp-title="@T("Admin.ContentManagement.News.NewsItems")" asp-default="true">@await Html.PartialAsync("_List.NewsItems", Model.NewsItems)</app-tab>
+                <app-tab asp-name="news-comments" asp-title="@T("Admin.ContentManagement.News.Comments")">@await Html.PartialAsync("_List.Comments", Model.NewsComments)</app-tab>
+            </app-tabs>
+        </div>
+    </div>
+
+    @{
+        //custom tabs
+        var eventMessage = new AdminTabStripCreated(this.Html, "news-tabs");
+        eventPublisher.Publish(eventMessage);
+        foreach (var eventBlock in eventMessage.BlocksToRender)
+        {
+        @eventBlock
+        }
+    }
+</form>

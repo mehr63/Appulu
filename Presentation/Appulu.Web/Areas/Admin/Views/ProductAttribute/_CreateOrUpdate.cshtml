@@ -1,0 +1,29 @@
+﻿@model ProductAttributeModel
+
+@inject IEventPublisher eventPublisher
+
+<div asp-validation-summary="All"></div>
+<input asp-for="Id" type="hidden" />
+
+<div class="content">
+    <div class="form-horizontal">
+        <app-tabs id="product-attribute-edit">
+            <app-tab asp-name="tab-info" asp-title="@T("Admin.Catalog.Attributes.ProductAttributes.Info")" asp-default="true">@await Html.PartialAsync("_CreateOrUpdate.Info", Model)</app-tab>
+            @if (Model.Id > 0)
+            {
+                <app-tab asp-title="@T("Admin.Catalog.Attributes.ProductAttributes.UsedByProducts")" asp-name="tab-used-by-products">@await Html.PartialAsync("_CreateOrUpdate.UsedByProducts", Model)</app-tab>
+            }
+            <app-tab asp-name="tab-predefined-values" asp-title="@T("Admin.Catalog.Attributes.ProductAttributes.PredefinedValues")">@await Html.PartialAsync("_CreateOrUpdate.PredefinedValues", Model)</app-tab>
+        </app-tabs>
+    </div>
+</div>
+
+@{
+    //custom tabs
+    var eventMessage = new AdminTabStripCreated(this.Html, "product-attribute-edit");
+    eventPublisher.Publish(eventMessage);
+    foreach (var eventBlock in eventMessage.BlocksToRender)
+    {
+        @eventBlock
+    }
+}

@@ -1,0 +1,37 @@
+﻿@model UserModel
+
+@inject IEventPublisher eventPublisher
+
+<div asp-validation-summary="All"></div>
+<input asp-for="Id" type="hidden" />
+
+<div class="content">
+    <div class="form-horizontal">
+        <app-tabs id="user-edit">
+            <app-tab asp-name="tab-info" asp-title="@T("Admin.Users.Users.Info")" asp-default="true">@await Html.PartialAsync("_CreateOrUpdate.Info", Model)</app-tab>
+            @if (Model.Id > 0)
+            {
+                <app-tab asp-name="tab-orders" asp-title="@T("Admin.Users.Users.Orders")">@await Html.PartialAsync("_CreateOrUpdate.Orders", Model)</app-tab>
+                <app-tab asp-name="tab-address" asp-title="@T("Admin.Users.Users.Addresses")">@await Html.PartialAsync("_CreateOrUpdate.Addresses", Model)</app-tab>
+                <app-tab asp-name="tab-cart" asp-title="@T("Admin.Users.Users.ShoppingCartAndWishlist")">@await Html.PartialAsync("_CreateOrUpdate.CurrentShoppingCart", Model)</app-tab>
+                <app-tab asp-name="tab-activitylog" asp-title="@T("Admin.Users.Users.ActivityLog")">@await Html.PartialAsync("_CreateOrUpdate.ActivityLog", Model)</app-tab>
+                <app-tab asp-name="tab-impersonate" asp-title="@T("Admin.Users.Users.Impersonate")">@await Html.PartialAsync("_CreateOrUpdate.Impersonate", Model)</app-tab>
+                <app-tab asp-name="tab-backinstock" asp-title="@T("Admin.Users.Users.BackInStockSubscriptions")">@await Html.PartialAsync("_CreateOrUpdate.BackInStockSubscriptions", Model)</app-tab>
+            }
+            @if (Model.DisplayRewardPointsHistory)
+            {
+                <app-tab asp-name="tab-rewardpoints" asp-title="@T("Admin.Users.Users.RewardPoints")">@await Html.PartialAsync("_CreateOrUpdate.RewardPoints", Model)</app-tab>
+            }
+        </app-tabs>
+    </div>
+</div>
+
+@{
+    //custom tabs
+    var eventMessage = new AdminTabStripCreated(this.Html, "user-edit");
+    eventPublisher.Publish(eventMessage);
+    foreach (var eventBlock in eventMessage.BlocksToRender)
+    {
+        @eventBlock
+    }
+}

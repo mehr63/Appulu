@@ -1,0 +1,47 @@
+﻿using System;
+using Microsoft.AspNetCore.Mvc;
+using Appulu.Core;
+using Appulu.Services.Common;
+
+namespace Appulu.Web.Areas.Admin.Controllers
+{
+    public partial class PreferencesController : BaseAdminController
+    {
+        #region Fields
+
+        private readonly IGenericAttributeService _genericAttributeService;
+        private readonly IWorkContext _workContext;
+
+        #endregion
+
+        #region Ctor
+
+        public PreferencesController(IGenericAttributeService genericAttributeService,
+            IWorkContext workContext)
+        {
+            this._genericAttributeService = genericAttributeService;
+            this._workContext = workContext;
+        }
+
+        #endregion
+
+        #region Methods
+
+        [HttpPost]
+        public virtual IActionResult SavePreference(string name, bool value)
+        {
+            //permission validation is not required here
+            if (string.IsNullOrEmpty(name))
+                throw new ArgumentNullException(nameof(name));
+
+            _genericAttributeService.SaveAttribute(_workContext.CurrentUser, name, value);
+
+            return Json(new
+            {
+                Result = true
+            });
+        }
+
+        #endregion
+    }
+}
